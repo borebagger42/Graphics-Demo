@@ -22,141 +22,68 @@ using namespace glm;
 
 class Sphere { //sphere class
 public:
-    vec3 center;
-    float radius = 1;
-    vec3 color;
+    //initialize radius, color, and center variables
 
     Sphere(double xin, double yin, double zin, float radin) {//initialization of sphere
-        center = vec3(xin, yin, zin);
-        radius = radin;
-        color = vec3(0.0f, 0.0f, 1.0f);
+        //class initialization
     }
 
     float signedDistance(const vec3& origin) const {
-        return length(origin - center) - radius;
+        //calculate the distance from a given point (origin) to it's closest point on the sphere, retaining it's sign
     }
     
 };
 
 int main(int argc, const char* argv) {
 
-    fstream sceneFile;
-    sceneFile.open("SceneDescription.txt", ios::in);
-    string line;
-    
-    vector<Sphere> spheres;
-    int x, y;
-    int maxWidth;
-    int maxHeight;
-    vec3 eye, viewOrigin, viewUp, viewRight;
-    float maxDistance = 100.0f;
-    int maxIterations = 100;
-    float delta = 0.001f;
+    // a bunch of variable declarations
     
 
     
-    while (getline(sceneFile, line)) { //read data from file object and put it into string.
-        string type;
-        stringstream ssl(line);
-        getline(ssl, type, ' '); //reads in the first word of the line and sets that as the type
+    while (getline(sceneFile, line)) { //read data from file object and put it into a string.
+        //read in the scene file
 
-        if (type == "image") { //all of these are if statements that initalize variables based on what the type of data input is
-            string a, b;
-            getline(ssl, a, ' ');
-            maxWidth = stod(a);
-            getline(ssl, b, ' ');
-            maxHeight = stod(b);
+        if (type == "image") { //all of these are if statements that initialize variables based on what the type of data input is
+            //initialize proper variables if the first line of the scene file is an image
         }
         else if (type == "viewport") {
-            string a, b, c, d, e, f, g, h, i;
-
-            getline(ssl, a, ' ');
-            viewOrigin.x = stof(a);
-            getline(ssl, b, ' ');
-            viewOrigin.y = stof(b);
-            getline(ssl, c, ' ');
-            viewOrigin.z = stof(c);
-            getline(ssl, d, ' ');
-            viewRight.x = stof(d);
-            getline(ssl, e, ' ');
-            viewRight.y = stof(e);
-            getline(ssl, f, ' ');
-            viewRight.z = stof(f);
-            getline(ssl, g, ' ');
-            viewUp.x = stof(g);
-            getline(ssl, h, ' ');
-            viewUp.y = stof(h);
-            getline(ssl, i, ' ');
-            viewUp.z = stof(i);
+            //same thing but with viewport
         }
         else if (type == "eye") {
-            string a, b, c;
-
-            getline(ssl, a, ' ');
-            eye.x = stof(a);
-            getline(ssl, b, ' ');
-            eye.y = stof(b);
-            getline(ssl, c, ' ');
-            eye.z = stof(c);
+            //same thing but with eye
         }
         else if (type == "sphere") {
-            string a, b, c, d;
-            float x, y, z, rad;
-
-            getline(ssl, a, ' ');
-            x = stod(a);
-            getline(ssl, b, ' ');
-            y = stod(b);
-            getline(ssl, c, ' ');
-            z = stod(c);
-            getline(ssl, d, ' ');
-            rad = stof(d);
-
-            Sphere sphereN(x, y, z, rad);
-            spheres.push_back(sphereN);
+            //same thing but with sphere
 
         }
     }
     sceneFile.close(); //close scene file
 
 
-    CImg<unsigned char> image(maxWidth, maxHeight, 1, 3, 0);
+    //create the image
 
-    for (y = 0; y < maxHeight; y += 1) {
-        for (x = 0; x < maxWidth; x += 1) {
-            vec3 pixel = vec3(x, y, viewOrigin.z);
-            vec3 currentCoords = pixel;
-            vec3 pixelColor(0, 0, 0);
-            vec3 dir = normalize(pixel - eye);
+    //iterate through each pixel{
+                                    {    
+            //calculate the coordinate of the pixel in global space
 
-            float traveledDistance = 0.0f;
-            int iteration = 0;
-            
-            float smallestSignedDist = numeric_limits<float>::infinity();
-            bool collisionFound = false;
+            //initialize some variables
 
-            while (traveledDistance < maxDistance && iteration < maxIterations && !collisionFound) {
-                for (const auto& sphere : spheres) {
-                    float t = sphere.signedDistance(currentCoords);
-                    if (t < delta) {
-                        pixelColor = sphere.color;
-                        collisionFound = true;
+            //loop while you haven't hit either of your maximums or an object {
+                //loop through all the objects in the scene {
+                    //calculate the signed distance;
+                    //if there is a collision{
+                        //break the loop and set the pixel color to blue
                     }
-                    else if (t <= smallestSignedDist) {
-                        smallestSignedDist = t;
+                    //if the calculated smallest signed distance is smaller than the last {
+                        //update the smallest signed distance
                     }
                 }
-                traveledDistance += smallestSignedDist;
-                iteration += 1;
-              
-                vec3 currentCoords = pixel + traveledDistance * dir;
+                //iterate the travel distance, and number of iterations, and move to the next spot on the ray according to the smallest signed distance
             }
-            image(x, y, 0) = static_cast<unsigned char>(pixelColor.x * 255);
-            image(x, y, 1) = static_cast<unsigned char>(pixelColor.y * 255);
-            image(x, y, 2) = static_cast<unsigned char>(pixelColor.z * 255); 
+            //update the image pixels
         }
     }
 
-    image.display("resultImage.png");
+    //display the image
     return 0;
 }
